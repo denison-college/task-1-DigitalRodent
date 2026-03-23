@@ -4,6 +4,48 @@ import time
 import sys 
 import os
 
+def play():
+    os.system('clear')
+    glad = "We are so glad you're here..."
+    for con in glad:
+        sys.stdout.write(con)
+        sys.stdout.flush()
+        time.sleep(0.1)
+    time.sleep(1)
+    print('\n')
+    please = "Please fill out the form below to continue"
+    for gink in please:
+        sys.stdout.write(gink)
+        sys.stdout.flush()
+        time.sleep(0.1)
+    time.sleep(1)
+
+    print('\n')
+    print('''
+    ______________________________________________________________________________________________
+    |                              Legally Binding Consent form                                  |
+    ==============================================================================================
+    |                                                                                            |
+    | First Name:                                                                                |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |                                                                                            |
+    |____________________________________________________________________________________________|''')
+
 #Minesweeper
 #welcome and options page 1
 time.sleep(2)
@@ -87,5 +129,3 @@ def mainmenu():
         mainmenu()
 startup()
 mainmenu()
-
-play()
