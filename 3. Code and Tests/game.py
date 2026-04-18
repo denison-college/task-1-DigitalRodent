@@ -63,8 +63,8 @@ def insertMines(chosenDif, difficulty, gameLogic):
 
 def adjacentCells(gameLogic):
     for x, row in enumerate(gameLogic):
-        for y, cel in enumerate(row):
-            if cel == ' ':
+        for y, cell in enumerate(row):
+            if cell == ' ':
                 cellCount = 0
 
                 if x != 0:
@@ -135,10 +135,87 @@ def printGameScreen(gameLogic, gameDict):
     ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     print (' Minesweeper '.center(100, '_'))
     print ('Cells Remaining: ')
-    topLine = '    |'
+    topLine = '   |'
     for i in range(len(gameLogic[0])):
         topLine += f' {ALPHABET[i]} |'
     print(topLine)
+    rowLine = ''
+    for i, row in enumerate(gameLogic):
+        rowLine = f'{i+1}'.ljust(3, ' ') + '|'
+        for j, cell in enumerate(row):
+            if gameDict[(i, j)]['Cell Vis'] != 'Hidden':
+                rowLine += f'{gameLogic[i][j]}'.center(3, ' ')+ '|'
+            else:
+                rowLine += f' # |'
+        print(rowLine)
+
+
+def checkAllAdjacentCells(cellCoord, gameLogic, GameDict):
+    x, y = cellCoord
+    nx, ny = x, y
+
+
+    if nx != 0:
+        if gameLogic[nx-1][ny] == ' ' or gameLogic[nx-1][ny].isdigit()\
+                and gameDict[(nx-1, ny)]['Cell Vis'] == 'Hidden':
+            gameDict[(nx-1, ny)]['Cell Vis'] = 'Uncovered'
+            if gameLogic[nx-1][ny] == ' ':
+                gameLogic[nx-1][ny] = '_'
+                checkAllAdjacentCells((nx-1, ny), gameLogic, GameDict)
+        if ny != 0:
+            if gameLogic[nx - 1][ny - 1] == ' ' or gameLogic[nx - 1][ny - 1].isdigit()\
+                    and gameDict[(nx - 1, ny - 1)]['Cell Vis'] == 'Hidden':
+                gameDict[(nx - 1, ny - 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx - 1][ny - 1] == ' ':
+                    gameLogic[nx - 1][ny - 1] = '_'
+                    checkAllAdjacentCells((nx - 1, ny - 1), gameLogic, GameDict)
+        if ny != len(gameLogic[0])-1:
+            if gameLogic[nx - 1][ny + 1] == ' ' or gameLogic[nx - 1][ny + 1].isdigit()\
+                    and gameDict[(nx - 1, ny + 1)][
+                'Cell Vis'] == 'Hidden':
+                gameDict[(nx - 1, ny + 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx - 1][ny + 1] == ' ':
+                    gameLogic[nx - 1][ny + 1] = '_'
+                    checkAllAdjacentCells((nx - 1, ny + 1), gameLogic, GameDict)
+
+    if nx != len(gameLogic) - 1:
+        if gameLogic[nx+1][ny] == ' ' or gameLogic[nx+1][ny].isdigit()\
+                and gameDict[(nx+1, ny)]['Cell Vis'] == 'Hidden':
+            gameDict[(nx+1, ny)]['Cell Vis'] = 'Uncovered'
+            if gameLogic[nx+1][ny] == ' ':
+                gameLogic[nx+1][ny] = '_'
+                checkAllAdjacentCells((nx+1, ny), gameLogic, GameDict)
+        if ny != 0:
+            if gameLogic[nx + 1][ny - 1] == ' ' or gameLogic[nx + 1][ny - 1].isdigit()\
+                    and gameDict[(nx + 1, ny - 1)]['Cell Vis'] == 'Hidden':
+                gameDict[(nx + 1, ny - 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx + 1][ny - 1] == ' ':
+                    gameLogic[nx + 1][ny - 1] = '_'
+                    checkAllAdjacentCells((nx + 1, ny - 1), gameLogic, GameDict)
+        if ny != len(gameLogic[0])-1:
+            if gameLogic[nx + 1][ny + 1] == ' ' or gameLogic[nx + 1][ny + 1].isdigit()\
+                    and gameDict[(nx + 1, ny + 1)][
+                'Cell Vis'] == 'Hidden':
+                gameDict[(nx + 1, ny + 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx + 1][ny + 1] == ' ':
+                    gameLogic[nx + 1][ny + 1] = '_'
+                    checkAllAdjacentCells((nx + 1, ny + 1), gameLogic, GameDict)
+
+        if ny != 0:
+            if gameLogic[nx][ny - 1] == ' ' or gameLogic[nx][ny - 1].isdigit()\
+                    and gameDict[(nx, ny - 1)]['Cell Vis'] == 'Hidden':
+                gameDict[(nx, ny - 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx][ny - 1] == ' ':
+                    gameLogic[nx][ny - 1] = '_'
+                    checkAllAdjacentCells((nx, ny - 1), gameLogic, GameDict)
+        if ny != len(gameLogic[0])-1:
+            if gameLogic[nx][ny + 1] == ' ' or gameLogic[nx][ny + 1].isdigit()\
+                    and gameDict[(nx, ny + 1)]['Cell Vis'] == 'Hidden':
+                gameDict[(nx, ny + 1)]['Cell Vis'] = 'Uncovered'
+                if gameLogic[nx][ny + 1] == ' ':
+                    gameLogic[nx][ny + 1] = '_'
+                    checkAllAdjacentCells((nx, ny + 1), gameLogic, GameDict)
+
 
 
 # Dictionaries and Lists
@@ -146,7 +223,7 @@ difficulty = {
     "I'm Too Young to Die": {'Rows': 10, 'Cols': 10, 'Mines': 10},
     "Hurt Me Plenty": {'Rows': 15, 'Cols': 15, 'Mines': 20},
     "Ultra-Violence": {'Rows': 20, 'Cols': 20, 'Mines': 40},
-    "Nightmare": {'Rows': 30, 'Cols': 24, 'Mines': 200},
+    "Nightmare": {'Rows': 30, 'Cols': 26, 'Mines': 200},
 }
 
 # Variables
@@ -163,6 +240,7 @@ for key, value in gameDict.items():
 for _ in gameLogic:
     print(_)
 
+printGameScreen(gameLogic, gameDict)
 selection = makeSelecion(gameDict)
 inputSelectionOntoGameLogic(selection, gameLogic, gameDict)
 printGameScreen(gameLogic, gameDict)
