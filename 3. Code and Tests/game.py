@@ -201,20 +201,21 @@ def checkAllAdjacentCells(cellCoord, gameLogic, GameDict):
                     gameLogic[nx + 1][ny + 1] = '_'
                     checkAllAdjacentCells((nx + 1, ny + 1), gameLogic, GameDict)
 
-        if ny != 0:
-            if gameLogic[nx][ny - 1] == ' ' or gameLogic[nx][ny - 1].isdigit()\
-                    and gameDict[(nx, ny - 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx, ny - 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx][ny - 1] == ' ':
-                    gameLogic[nx][ny - 1] = '_'
-                    checkAllAdjacentCells((nx, ny - 1), gameLogic, GameDict)
-        if ny != len(gameLogic[0])-1:
-            if gameLogic[nx][ny + 1] == ' ' or gameLogic[nx][ny + 1].isdigit()\
-                    and gameDict[(nx, ny + 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx, ny + 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx][ny + 1] == ' ':
-                    gameLogic[nx][ny + 1] = '_'
-                    checkAllAdjacentCells((nx, ny + 1), gameLogic, GameDict)
+    if ny != 0:
+        if (gameLogic[nx][ny - 1] == ' ' or gameLogic[nx][ny - 1].isdigit())\
+                and gameDict[(nx, ny - 1)]['Cell Vis'] == 'Hidden':
+            gameDict[(nx, ny - 1)]['Cell Vis'] = 'Uncovered'
+            if gameLogic[nx][ny - 1] == ' ':
+                gameLogic[nx][ny - 1] = '_'
+                checkAllAdjacentCells((nx, ny - 1), gameLogic, gameDict)
+
+    if ny != len(gameLogic[0])-1:
+        if (gameLogic[nx][ny + 1] == ' ' or gameLogic[nx][ny + 1].isdigit())\
+                and gameDict[(nx, ny + 1)]['Cell Vis'] == 'Hidden':
+            gameDict[(nx, ny + 1)]['Cell Vis'] = 'Uncovered'
+            if gameLogic[nx][ny + 1] == ' ':
+                gameLogic[nx][ny + 1] = '_'
+                checkAllAdjacentCells((nx, ny + 1), gameLogic, gameDict)
 
 
 
