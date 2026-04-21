@@ -63,37 +63,39 @@ def add_score(name, result, time_taken, difficulty):
 def show_scoreboard():
     """Display the saved highscores."""
     scores = load_scores()
+    scores = sorted(scores, key=_score_key)
 
     print()
-    print("=" * 78)
-    print("FINAL HIGHSCORES".center(78))
-    print("=" * 78)
+    print("=" * 92)
+    print("FINAL HIGHSCORES".center(92))
+    print("=" * 92)
 
     if not scores:
         print("No highscores have been recorded yet.")
-        print("=" * 78)
+        print("=" * 92)
         return
 
-    print(f"{'#':<4}{'Name':<18}{'Result':<10}{'Difficulty':<24}{'Time':<10}{'Date'}")
-    print("-" * 78)
+    header = f"{'#':<4}{'Name':<18}{'Result':<10}{'Difficulty':<24}{'Time':<10}{'Date'}"
+    print(header)
+    print("-" * 92)
 
-    for index, entry in enumerate(sorted(scores, key=_score_key), start=1):
-        name = entry.get("name", "Unknown")
-        result = entry.get("result", "Unknown")
-        difficulty = entry.get("difficulty", "Unknown")
-        time_taken = entry.get("time", 0.0)
-        date = entry.get("date", "")
+    for index, entry in enumerate(scores, start=1):
+        name = str(entry.get("name", "Unknown"))[:17]
+        result = str(entry.get("result", "Unknown"))[:9]
+        difficulty = str(entry.get("difficulty", "Unknown"))[:23]
+        time_taken = float(entry.get("time", 0.0))
+        date = str(entry.get("date", ""))
 
         print(
             f"{index:<4}"
             f"{name:<18}"
             f"{result:<10}"
             f"{difficulty:<24}"
-            f"{time_taken:<10}"
+            f"{time_taken:<10.2f}"
             f"{date}"
         )
 
-    print("=" * 78)
+    print("=" * 92)
 
 
 def clear_scores():

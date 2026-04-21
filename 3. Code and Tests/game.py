@@ -6,133 +6,120 @@
 # Import Modules
 import random
 import time
-import sys
-import os
+import score
 
 difficulty = None
 gameLogic = None
 gameDict = None
 chooseDif = None
 startTime = None
+playerName = None
 
-# Functions
+
 def runGame(Name):
-    global chooseDif, gameLogic, gameDict, startTime, difficulty
+    global chooseDif, gameLogic, gameDict, startTime, difficulty, playerName
     """Run the game"""
-    difficulty = {
-        "I'm Too Young to Die": {'Rows': 10, 'Cols': 10, 'Mines': 10},
-        "Hurt Me Plenty": {'Rows': 15, 'Cols': 15, 'Mines': 20},
-        "Ultra-Violence": {'Rows': 20, 'Cols': 20, 'Mines': 40},
-        "Nightmare": {'Rows': 30, 'Cols': 26, 'Mines': 200},
-    }
+    playerName = Name
 
+    difficulty = {
+        "I'm Too Young to Die": {"Rows": 10, "Cols": 10, "Mines": 10},
+        "Hurt Me Plenty": {"Rows": 15, "Cols": 15, "Mines": 20},
+        "Ultra-Violence": {"Rows": 20, "Cols": 20, "Mines": 40},
+        "Nightmare": {"Rows": 30, "Cols": 26, "Mines": 200},
+    }
 
     chooseDif = chooseDifficulty()
     gameLogic = createGameLogic(chooseDif, difficulty)
     gameDict = createGameDict(gameLogic)
     startTime = time.perf_counter()
 
-    RUNGAME = True
-    while RUNGAME:
+    running = True
+    while running:
         printGameScreen(gameLogic, gameDict, startTime)
         selection, action = makeSelection(gameDict)
         processSelection(selection, action, gameLogic, gameDict)
-        RUNGAME = checkForWinLose(gameLogic, gameDict)
+        running = checkForWinLose(gameLogic, gameDict, startTime)
 
 
 def chooseDifficulty():
     """Select the Minesweeper difficulty"""
     while True:
-        print('Difficulty')
+        print("Difficulty")
         print("1. I'm Too Young to Die")
         print("2. Hurt Me Plenty")
         print("3. Ultra-Violence")
         print("4. Nightmare")
-        print('\n')
+        print()
 
-        answer = input('Please enter your difficulty level: ').strip()
+        answer = input("Please enter your difficulty level: ").strip()
 
-        if answer == '1':
+        if answer == "1":
             return "I'm Too Young to Die"
-        elif answer == '2':
+        if answer == "2":
             return "Hurt Me Plenty"
-        elif answer == '3':
+        if answer == "3":
             return "Ultra-Violence"
-        elif answer == '4':
+        if answer == "4":
             return "Nightmare"
-        else:
-            print("Invalid choice. Please choose 1, 2, 3, or 4.")
+
+        print("Invalid choice. Please choose 1, 2, 3, or 4.")
 
 
 def createGameLogic(chosenDif, difficulty):
     logicList = []
-    for row in range(difficulty[chosenDif]['Rows']):
-        rowList = []
-        for col in range(difficulty[chosenDif]['Cols']):
-            rowList.append(' ')
-        logicList.append(rowList)
+    for _ in range(difficulty[chosenDif]["Rows"]):
+        logicList.append([" "] * difficulty[chosenDif]["Cols"])
 
     insertMines(chosenDif, difficulty, logicList)
     adjacentCells(logicList)
-
     return logicList
 
 
 def insertMines(chosenDif, difficulty, gameLogic):
-    """Randomly selects and postions the mines onto the game grid"""
-    for mine in range(difficulty[chosenDif]['Mines']):
-        validChoice = False
-        while not validChoice:
-            x = random.randint(0, difficulty[chosenDif]['Rows'] - 1)
-            y = random.randint(0, difficulty[chosenDif]['Cols'] - 1)
+    """Randomly select and position mines onto the game grid"""
+    mines_to_place = difficulty[chosenDif]["Mines"]
 
-            if gameLogic[x][y] == ' ':
-                validChoice = True
+    placed = 0
+    while placed < mines_to_place:
+        x = random.randint(0, difficulty[chosenDif]["Rows"] - 1)
+        y = random.randint(0, difficulty[chosenDif]["Cols"] - 1)
 
-        gameLogic[x][y] = 'X'
+        if gameLogic[x][y] == " ":
+            gameLogic[x][y] = "X"
+            placed += 1
 
 
 def adjacentCells(gameLogic):
-    for x, row in enumerate(gameLogic):
-        for y, cell in enumerate(row):
-            if cell == ' ':
-                cellCount = 0
+    rows = len(gameLogic)
+    cols = len(gameLogic[0])
 
-                if x != 0:
-                    if gameLogic[x - 1][y] == 'X':
-                        cellCount += 1
-                    if y != 0 and gameLogic[x - 1][y - 1] == 'X':
-                        cellCount += 1
-                    if y != len(gameLogic[0]) - 1 and gameLogic[x - 1][y + 1] == 'X':
-                        cellCount += 1
+    for x in range(rows):
+        for y in range(cols):
+            if gameLogic[x][y] != " ":
+                continue
 
-                if y != 0 and gameLogic[x][y - 1] == 'X':
-                    cellCount += 1
-                if y != len(gameLogic[0]) - 1 and gameLogic[x][y + 1] == 'X':
-                    cellCount += 1
+            count = 0
+            for nx in range(max(0, x - 1), min(rows, x + 2)):
+                for ny in range(max(0, y - 1), min(cols, y + 2)):
+                    if (nx, ny) != (x, y) and gameLogic[nx][ny] == "X":
+                        count += 1
 
-                if x != len(gameLogic) - 1:
-                    if gameLogic[x + 1][y] == 'X':
-                        cellCount += 1
-                    if y != 0 and gameLogic[x + 1][y - 1] == 'X':
-                        cellCount += 1
-                    if y != len(gameLogic[0]) - 1 and gameLogic[x + 1][y + 1] == 'X':
-                        cellCount += 1
-
-                if cellCount > 0:
-                    gameLogic[x][y] = str(cellCount)
+            if count > 0:
+                gameLogic[x][y] = str(count)
 
 
 def createGameDict(gameLogic):
-    ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     cellDict = {}
+
     for x, row in enumerate(gameLogic):
-        for y, cell in enumerate(row):
+        for y, _ in enumerate(row):
             cellDict[(x, y)] = {
-                'cell Ref': ALPHABET[y] + str(x + 1),
-                'Cell Value': gameLogic[x][y],
-                'Cell Vis': 'Hidden'
+                "cell Ref": alphabet[y] + str(x + 1),
+                "Cell Value": gameLogic[x][y],
+                "Cell Vis": "Hidden",
             }
+
     return cellDict
 
 
@@ -142,16 +129,16 @@ def makeSelection(gamedictionary):
             'Enter a cell to uncover (A1, B2, etc.) or flag with "F A1" / "flag A1": '
         ).strip()
 
-        action = 'uncover'
+        action = "uncover"
         cell_ref = answer.upper()
 
         parts = answer.split()
-        if len(parts) == 2 and parts[0].lower() in ('f', 'flag'):
-            action = 'flag'
+        if len(parts) == 2 and parts[0].lower() in ("f", "flag"):
+            action = "flag"
             cell_ref = parts[1].upper()
 
         for keys, values in gamedictionary.items():
-            if cell_ref == values['cell Ref']:
+            if cell_ref == values["cell Ref"]:
                 return keys, action
 
         print("Invalid cell reference. Please try again.")
@@ -161,69 +148,70 @@ def processSelection(selection, action, gameLogic, gameDict):
     x, y = selection
     cell_info = gameDict[(x, y)]
 
-    if action == 'flag':
-        if cell_info['Cell Vis'] == 'Uncovered':
+    if action == "flag":
+        if cell_info["Cell Vis"] == "Uncovered":
             print("You cannot flag an uncovered cell.")
             return
 
-        if cell_info['Cell Vis'] == 'Flagged':
-            cell_info['Cell Vis'] = 'Hidden'
+        if cell_info["Cell Vis"] == "Flagged":
+            cell_info["Cell Vis"] = "Hidden"
             print(f"{cell_info['cell Ref']} unflagged.")
         else:
-            cell_info['Cell Vis'] = 'Flagged'
+            cell_info["Cell Vis"] = "Flagged"
             print(f"{cell_info['cell Ref']} flagged.")
         return
 
-    if cell_info['Cell Vis'] == 'Flagged':
+    if cell_info["Cell Vis"] == "Flagged":
         print("That cell is flagged. Unflag it before uncovering.")
         return
 
-    if cell_info['Cell Vis'] == 'Uncovered':
+    if cell_info["Cell Vis"] == "Uncovered":
         print("That cell is already uncovered.")
         return
 
-    cell_info['Cell Vis'] = 'Uncovered'
+    cell_info["Cell Vis"] = "Uncovered"
 
-    if gameLogic[x][y] == ' ':
-        gameLogic[x][y] = '_'
+    if gameLogic[x][y] == " ":
+        gameLogic[x][y] = "_"
         checkAllAdjacentCells((x, y), gameLogic, gameDict)
 
 
 def printGameScreen(gameLogic, gameDict, startTime):
-    ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     remainingCells = countRemainingCells(gameDict)
-    elapsedTime = time.perf_counter() - startTime
     flagCount = countFlags(gameDict)
-    totalFlagsAllowed = difficulty[chooseDif]['Mines']
+    totalFlagsAllowed = difficulty[chooseDif]["Mines"]
     flagsRemaining = totalFlagsAllowed - flagCount
+    elapsedTime = time.perf_counter() - startTime
 
-    print(' Minesweeper '.center(100, '_'))
-    print(f'Cells Remaining: {remainingCells}')
-    print(f'Flags Placed: {flagCount}')
-    print(f'Flags Remaining: {flagsRemaining}')
-    print(f'Time Elapsed: {formatElapsedTime(elapsedTime)}')
-    topLine = '   |'
+    print(" Minesweeper ".center(100, "_"))
+    print(f"Cells Remaining: {remainingCells}")
+    print(f"Flags Placed: {flagCount}")
+    print(f"Flags Remaining: {flagsRemaining}")
+    print(f"Time Elapsed: {formatElapsedTime(elapsedTime)}")
+
+    topLine = "   |"
     for i in range(len(gameLogic[0])):
-        topLine += f' {ALPHABET[i]} |'
+        topLine += f" {alphabet[i]} |"
     print(topLine)
 
     for i, row in enumerate(gameLogic):
-        rowLine = f'{i + 1}'.ljust(3, ' ') + '|'
-        for j, cell in enumerate(row):
-            vis = gameDict[(i, j)]['Cell Vis']
-            if vis == 'Uncovered':
-                rowLine += f'{gameLogic[i][j]}'.center(3, ' ') + '|'
-            elif vis == 'Flagged':
-                rowLine += ' F '.center(3, ' ') + '|'
+        rowLine = f"{i + 1}".ljust(3, " ") + "|"
+        for j, _ in enumerate(row):
+            vis = gameDict[(i, j)]["Cell Vis"]
+            if vis == "Uncovered":
+                rowLine += f"{gameLogic[i][j]}".center(3, " ") + "|"
+            elif vis == "Flagged":
+                rowLine += " F ".center(3, " ") + "|"
             else:
-                rowLine += ' # |'
+                rowLine += " # |"
         print(rowLine)
 
 
 def countRemainingCells(gameDict):
     remaining = 0
     for cell in gameDict.values():
-        if cell['Cell Value'] != 'X' and cell['Cell Vis'] == 'Hidden':
+        if cell["Cell Value"] != "X" and cell["Cell Vis"] == "Hidden":
             remaining += 1
     return remaining
 
@@ -231,7 +219,7 @@ def countRemainingCells(gameDict):
 def countFlags(gameDict):
     flags = 0
     for cell in gameDict.values():
-        if cell['Cell Vis'] == 'Flagged':
+        if cell["Cell Vis"] == "Flagged":
             flags += 1
     return flags
 
@@ -243,81 +231,85 @@ def formatElapsedTime(seconds):
 
 
 def checkAllAdjacentCells(cellCoord, gameLogic, gameDict):
+    rows = len(gameLogic)
+    cols = len(gameLogic[0])
     x, y = cellCoord
-    nx, ny = x, y
 
-    if nx != 0:
-        if (gameLogic[nx - 1][ny] == ' ' or gameLogic[nx - 1][ny].isdigit()) and gameDict[(nx - 1, ny)]['Cell Vis'] == 'Hidden':
-            gameDict[(nx - 1, ny)]['Cell Vis'] = 'Uncovered'
-            if gameLogic[nx - 1][ny] == ' ':
-                gameLogic[nx - 1][ny] = '_'
-                checkAllAdjacentCells((nx - 1, ny), gameLogic, gameDict)
-        if ny != 0:
-            if (gameLogic[nx - 1][ny - 1] == ' ' or gameLogic[nx - 1][ny - 1].isdigit()) and gameDict[(nx - 1, ny - 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx - 1, ny - 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx - 1][ny - 1] == ' ':
-                    gameLogic[nx - 1][ny - 1] = '_'
-                    checkAllAdjacentCells((nx - 1, ny - 1), gameLogic, gameDict)
-        if ny != len(gameLogic[0]) - 1:
-            if (gameLogic[nx - 1][ny + 1] == ' ' or gameLogic[nx - 1][ny + 1].isdigit()) and gameDict[(nx - 1, ny + 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx - 1, ny + 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx - 1][ny + 1] == ' ':
-                    gameLogic[nx - 1][ny + 1] = '_'
-                    checkAllAdjacentCells((nx - 1, ny + 1), gameLogic, gameDict)
+    for nx in range(max(0, x - 1), min(rows, x + 2)):
+        for ny in range(max(0, y - 1), min(cols, y + 2)):
+            if (nx, ny) == (x, y):
+                continue
 
-    if nx != len(gameLogic) - 1:
-        if (gameLogic[nx + 1][ny] == ' ' or gameLogic[nx + 1][ny].isdigit()) and gameDict[(nx + 1, ny)]['Cell Vis'] == 'Hidden':
-            gameDict[(nx + 1, ny)]['Cell Vis'] = 'Uncovered'
-            if gameLogic[nx + 1][ny] == ' ':
-                gameLogic[nx + 1][ny] = '_'
-                checkAllAdjacentCells((nx + 1, ny), gameLogic, gameDict)
-        if ny != 0:
-            if (gameLogic[nx + 1][ny - 1] == ' ' or gameLogic[nx + 1][ny - 1].isdigit()) and gameDict[(nx + 1, ny - 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx + 1, ny - 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx + 1][ny - 1] == ' ':
-                    gameLogic[nx + 1][ny - 1] = '_'
-                    checkAllAdjacentCells((nx + 1, ny - 1), gameLogic, gameDict)
-        if ny != len(gameLogic[0]) - 1:
-            if (gameLogic[nx + 1][ny + 1] == ' ' or gameLogic[nx + 1][ny + 1].isdigit()) and gameDict[(nx + 1, ny + 1)]['Cell Vis'] == 'Hidden':
-                gameDict[(nx + 1, ny + 1)]['Cell Vis'] = 'Uncovered'
-                if gameLogic[nx + 1][ny + 1] == ' ':
-                    gameLogic[nx + 1][ny + 1] = '_'
-                    checkAllAdjacentCells((nx + 1, ny + 1), gameLogic, gameDict)
+            if gameDict[(nx, ny)]["Cell Vis"] != "Hidden":
+                continue
 
-    if ny != 0:
-        if (gameLogic[nx][ny - 1] == ' ' or gameLogic[nx][ny - 1].isdigit()) and gameDict[(nx, ny - 1)]['Cell Vis'] == 'Hidden':
-            gameDict[(nx, ny - 1)]['Cell Vis'] = 'Uncovered'
-            if gameLogic[nx][ny - 1] == ' ':
-                gameLogic[nx][ny - 1] = '_'
-                checkAllAdjacentCells((nx, ny - 1), gameLogic, gameDict)
+            if gameLogic[nx][ny] == "X":
+                continue
 
-    if ny != len(gameLogic[0]) - 1:
-        if (gameLogic[nx][ny + 1] == ' ' or gameLogic[nx][ny + 1].isdigit()) and gameDict[(nx, ny + 1)]['Cell Vis'] == 'Hidden':
-            gameDict[(nx, ny + 1)]['Cell Vis'] = 'Uncovered'
-            if gameLogic[nx][ny + 1] == ' ':
-                gameLogic[nx][ny + 1] = '_'
-                checkAllAdjacentCells((nx, ny + 1), gameLogic, gameDict)
+            gameDict[(nx, ny)]["Cell Vis"] = "Uncovered"
+
+            if gameLogic[nx][ny] == " ":
+                gameLogic[nx][ny] = "_"
+                checkAllAdjacentCells((nx, ny), gameLogic, gameDict)
 
 
-def checkForWinLose(gameLogic, gameDict):
-    TOTALMINES = difficulty[chooseDif]['Mines']
-    TOTALCELLS = difficulty[chooseDif]['Rows'] * difficulty[chooseDif]['Cols']
-    AVCELLS = TOTALCELLS - TOTALMINES
-    visibleCells = 0
+def revealAllMines(gameDict):
+    for values in gameDict.values():
+        if values["Cell Value"] == "X":
+            values["Cell Vis"] = "Uncovered"
+
+
+def saveResult(result, startTime):
+    elapsed_time = time.perf_counter() - startTime
+    score.add_score(playerName, result, elapsed_time, chooseDif)
+
+
+def checkForWinLose(gameLogic, gameDict, startTime):
+    totalMines = difficulty[chooseDif]["Mines"]
+    totalCells = difficulty[chooseDif]["Rows"] * difficulty[chooseDif]["Cols"]
+    safeCells = totalCells - totalMines
+
+    uncoveredSafeCells = 0
 
     for values in gameDict.values():
-        if values['Cell Vis'] == 'Uncovered':
-            visibleCells += 1
-        if values['Cell Value'] == 'X' and values['Cell Vis'] == 'Uncovered':
-            print("Game Over, You Lost!")
+        if values["Cell Vis"] == "Uncovered" and values["Cell Value"] != "X":
+            uncoveredSafeCells += 1
+
+        if values["Cell Value"] == "X" and values["Cell Vis"] == "Uncovered":
+            revealAllMines(gameDict)
+            printGameScreen(gameLogic, gameDict, startTime)
+            saveResult("Lost", startTime)
+            print('''
+             .d8888b.         d8888 888b     d888 8888888888       .d88888b.  888     888 8888888888 8888888b.  888 
+            d88P  Y88b       d88888 8888b   d8888 888             d88P" "Y88b 888     888 888        888   Y88b 888 
+            888    888      d88P888 88888b.d88888 888             888     888 888     888 888        888    888 888 
+            888            d88P 888 888Y88888P888 8888888         888     888 Y88b   d88P 8888888    888   d88P 888 
+            888  88888    d88P  888 888 Y888P 888 888             888     888  Y88b d88P  888        8888888P"  888 
+            888    888   d88P   888 888  Y8P  888 888             888     888   Y88o88P   888        888 T88b   Y8P 
+            Y88b  d88P  d8888888888 888   "   888 888             Y88b. .d88P    Y888P    888        888  T88b   "  
+             "Y8888P88 d88P     888 888       888 8888888888       "Y88888P"      Y8P     8888888888 888   T88b 888 ''')
+            time.sleep(1)
+            print("YOU FAILED")
             time.sleep(2)
             return False
 
-    if visibleCells == AVCELLS:
-        print("Congratulations, You Won!")
+    if uncoveredSafeCells == safeCells:
+        printGameScreen(gameLogic, gameDict, startTime)
+        saveResult("Won", startTime)
+        print('''
+         .d8888b.   .d88888b.  888b    888  .d8888b.  8888888b.         d8888 88888888888 888     888 888             d8888 88888888888 8888888 .d88888b.  888b    888  .d8888b.  888 
+        d88P  Y88b d88P" "Y88b 8888b   888 d88P  Y88b 888   Y88b       d88888     888     888     888 888            d88888     888       888  d88P" "Y88b 8888b   888 d88P  Y88b 888 
+        888    888 888     888 88888b  888 888    888 888    888      d88P888     888     888     888 888           d88P888     888       888  888     888 88888b  888 Y88b.      888 
+        888        888     888 888Y88b 888 888        888   d88P     d88P 888     888     888     888 888          d88P 888     888       888  888     888 888Y88b 888  "Y888b.   888 
+        888        888     888 888 Y88b888 888  88888 8888888P"     d88P  888     888     888     888 888         d88P  888     888       888  888     888 888 Y88b888     "Y88b. 888 
+        888    888 888     888 888  Y88888 888    888 888 T88b     d88P   888     888     888     888 888        d88P   888     888       888  888     888 888  Y88888       "888 Y8P 
+        Y88b  d88P Y88b. .d88P 888   Y8888 Y88b  d88P 888  T88b   d8888888888     888     Y88b. .d88P 888       d8888888888     888       888  Y88b. .d88P 888   Y8888 Y88b  d88P  "  
+         "Y8888P"   "Y88888P"  888    Y888  "Y8888P88 888   T88b d88P     888     888      "Y88888P"  88888888 d88P     888     888     8888888 "Y88888P"  888    Y888  "Y8888P"  888 ''')
+        time.sleep(1)
+        print("YOU WON")
         time.sleep(2)
         return False
-    else:
-        return True
+
+    return True
 
 
