@@ -1,5 +1,4 @@
 # Import Modules
-import rich
 import time
 import sys
 import os
@@ -35,7 +34,7 @@ def title2():
 
 
 def title():
-    text_print("Welcome to", 0.2)
+    text_print("Welcome to", 0.1)
     time.sleep(1)
 
     print('\n')
@@ -73,7 +72,7 @@ def mainmenu():
     elif Option == '2':
         quit()
     elif Option == '3':
-            text_print("Now Exiting the program...", 0.2)
+            text_print("Now Exiting the program...", 0.1)
             time.sleep(0.5)
             quit()
 
