@@ -2,7 +2,7 @@
 import time
 import sys
 import os
-
+import game
 
 # Functions
 def text_print(text, delay):
@@ -52,12 +52,6 @@ def title():
                                                                                  888                       '''.center(100, ' '), 0.001)
 
     print('\n')
-    time.sleep(2)
-    text_print('Thank you for willingly participating', 0.1)
-    print('\n')
-    time.sleep(0.5)
-
-
 def mainmenu():
     print('Options')
     print('1. Play Game')
@@ -67,10 +61,14 @@ def mainmenu():
 
     Option = input('Please choose an option: ')
     if Option == '1':
-        os.system('cls')
-        os.system('python3 game.py')
+        os.system("cls")
+        Name = input('Please enter your name: ')
+        os.system("cls")
+        game.runGame(Name)
+
     elif Option == '2':
         quit()
+
     elif Option == '3':
             text_print("Now Exiting the program...", 0.1)
             time.sleep(0.5)

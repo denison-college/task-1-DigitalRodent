@@ -9,8 +9,46 @@ import time
 import sys
 import os
 
+difficulty = None
+gameLogic = None
+gameDict = None
+chooseDif = None
+startTime = None
 
 # Functions
+def runGame(Name):
+    global chooseDif, gameLogic, gameDict, startTime, difficulty
+    """Run the game"""
+    difficulty = {
+        "I'm Too Young to Die": {'Rows': 10, 'Cols': 10, 'Mines': 10},
+        "Hurt Me Plenty": {'Rows': 15, 'Cols': 15, 'Mines': 20},
+        "Ultra-Violence": {'Rows': 20, 'Cols': 20, 'Mines': 40},
+        "Nightmare": {'Rows': 30, 'Cols': 26, 'Mines': 200},
+    }
+
+
+    chooseDif = chooseDifficulty()
+    gameLogic = createGameLogic(chooseDif, difficulty)
+    gameDict = createGameDict(gameLogic)
+    startTime = time.perf_counter()
+
+    # Variables
+
+
+    # Call Functions
+
+    # rungame
+
+    for _ in gameLogic:
+        print(_)
+
+    RUNGAME = True
+    while RUNGAME:
+        printGameScreen(gameLogic, gameDict, startTime)
+        selection = makeSelection(gameDict)
+        inputSelectionOntoGameLogic(selection, gameLogic, gameDict)
+        RUNGAME = checkForWinLose(gameLogic, gameDict)
+
 def chooseDifficulty():
     """Select the Minesweeper difficulty"""
     validChoise = False
@@ -253,30 +291,3 @@ def checkForWinLose(gameLogic, gameDict):
         return True
 
 
-# Dictionaries and Lists
-difficulty = {
-    "I'm Too Young to Die": {'Rows': 10, 'Cols': 10, 'Mines': 10},
-    "Hurt Me Plenty": {'Rows': 15, 'Cols': 15, 'Mines': 20},
-    "Ultra-Violence": {'Rows': 20, 'Cols': 20, 'Mines': 40},
-    "Nightmare": {'Rows': 30, 'Cols': 26, 'Mines': 200},
-}
-
-# Variables
-chooseDif = chooseDifficulty()
-gameLogic = createGameLogic(chooseDif, difficulty)
-gameDict = createGameDict(gameLogic)
-startTime = time.perf_counter()
-
-# Call Functions
-
-# rungame
-
-for _ in gameLogic:
-    print(_)
-
-RUNGAME = True
-while RUNGAME:
-    printGameScreen(gameLogic, gameDict, startTime)
-    selection = makeSelection(gameDict)
-    inputSelectionOntoGameLogic(selection, gameLogic, gameDict)
-    RUNGAME = checkForWinLose(gameLogic, gameDict)
