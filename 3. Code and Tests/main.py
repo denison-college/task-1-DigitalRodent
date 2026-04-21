@@ -29,7 +29,7 @@ def title2():
                                                                                  888                       
                                                                                  888                       
                                                                                  888                       '''.center(100, ' '))
-    print('Thank you for willingly participating')
+    time.sleep(1)
     print('\n')
 
 
@@ -50,7 +50,7 @@ def title():
                                                                                  888                       
                                                                                  888                       
                                                                                  888                       '''.center(100, ' '), 0.001)
-
+    time.sleep(1)
     print('\n')
 def mainmenu():
     print('Options')
