@@ -3,11 +3,12 @@
 """URL found below"""
 """https://www.youtube.com/watch?v=st4bnpt6j1U"""
 
-# Import Modules
+# Import modules used for randomness, timing, and saving scores.
 import random
 import time
 import score
 
+# Global state used throughout the game.
 difficulty = None
 gameLogic = None
 gameDict = None
