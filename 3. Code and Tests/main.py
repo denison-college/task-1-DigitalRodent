@@ -63,12 +63,16 @@ def mainmenu():
             clear_screen()
             game.runGame(name)
             input("\nPress Enter to return to the main menu...")
+            clear_screen()
+            title()
 
         elif option == "2":
             # Show the scoreboard and wait for the player to continue.
             clear_screen()
             score.show_scoreboard()
             input("\nPress Enter to return to the main menu...")
+            clear_screen()
+            title()
 
         elif option == "3":
             # Exit the application with a short farewell message.
@@ -77,9 +81,10 @@ def mainmenu():
             break
 
         else:
-            # Handle invalid menu selections.
+            # Handle invalid menu selections, then clear the screen.
             print("Invalid Option")
-            time.sleep(2)
+            time.sleep(1)
+            clear_screen()
 
 
 # Show the title screen and then open the main menu.

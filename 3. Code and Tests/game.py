@@ -4,8 +4,10 @@
 """https://www.youtube.com/watch?v=st4bnpt6j1U"""
 
 # Import modules used for randomness, timing, and saving scores.
+# Import modules used for randomness, timing, screen clearing, and saving scores.
 import random
 import time
+import os
 import score
 
 # Global state used throughout the game.
@@ -17,9 +19,15 @@ startTime = None
 playerName = None
 
 
+def clear_screen():
+    # Clear the terminal screen on Windows or Unix-like systems.
+    os.system("cls" if os.name == "nt" else "clear")
+
+
 def runGame(Name):
     global chooseDif, gameLogic, gameDict, startTime, difficulty, playerName
     """Run the game"""
+    # Store the player's name and define the available difficulty presets.
     playerName = Name
 
     difficulty = {
@@ -29,13 +37,16 @@ def runGame(Name):
         "Nightmare": {"Rows": 30, "Cols": 26, "Mines": 200},
     }
 
+    # Ask for difficulty, create the board, and begin the timer.
     chooseDif = chooseDifficulty()
     gameLogic = createGameLogic(chooseDif, difficulty)
     gameDict = createGameDict(gameLogic)
     startTime = time.perf_counter()
 
+    # Main gameplay loop.
     running = True
     while running:
+        clear_screen()
         printGameScreen(gameLogic, gameDict, startTime)
         selection, action = makeSelection(gameDict)
         processSelection(selection, action, gameLogic, gameDict)
@@ -44,6 +55,7 @@ def runGame(Name):
 
 def chooseDifficulty():
     """Select the Minesweeper difficulty"""
+    # Keep asking until the player enters a valid choice.
     while True:
         print("Difficulty")
         print("1. I'm Too Young to Die")
@@ -63,7 +75,9 @@ def chooseDifficulty():
         if answer == "4":
             return "Nightmare"
 
-        print("Invalid choice. Please choose 1, 2, 3, or 4.")
+        clear_screen()
+        time.sleep(1)
+        clear_screen()
 
 
 def createGameLogic(chosenDif, difficulty):
@@ -150,34 +164,51 @@ def processSelection(selection, action, gameLogic, gameDict):
     cell_info = gameDict[(x, y)]
 
     if action == "flag":
+        # Prevent flagging a cell that has already been uncovered.
         if cell_info["Cell Vis"] == "Uncovered":
             print("You cannot flag an uncovered cell.")
+            time.sleep(1)
+            clear_screen()
             return
 
+        # Toggle the flag state.
         if cell_info["Cell Vis"] == "Flagged":
             cell_info["Cell Vis"] = "Hidden"
             print(f"{cell_info['cell Ref']} unflagged.")
         else:
             cell_info["Cell Vis"] = "Flagged"
             print(f"{cell_info['cell Ref']} flagged.")
+
+        time.sleep(1)
+        clear_screen()
         return
 
+    # Prevent uncovering flagged or already uncovered cells.
     if cell_info["Cell Vis"] == "Flagged":
         print("That cell is flagged. Unflag it before uncovering.")
+        time.sleep(1)
+        clear_screen()
         return
 
     if cell_info["Cell Vis"] == "Uncovered":
         print("That cell is already uncovered.")
+        time.sleep(1)
+        clear_screen()
         return
 
+    # Mark the selected cell as uncovered.
     cell_info["Cell Vis"] = "Uncovered"
 
+    # If the cell is empty, reveal neighboring cells recursively.
     if gameLogic[x][y] == " ":
         gameLogic[x][y] = "_"
         checkAllAdjacentCells((x, y), gameLogic, gameDict)
 
+    clear_screen()
+
 
 def printGameScreen(gameLogic, gameDict, startTime):
+    # Show the current board and game statistics.
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     remainingCells = countRemainingCells(gameDict)
     flagCount = countFlags(gameDict)
